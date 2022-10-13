@@ -1,0 +1,40 @@
+version: '3'
+
+services:
+
+  postgres:
+    build: 
+      context: .
+      dockerfile: postgres.Dockerfile
+    restart: always 
+    container_name: postgres_helloWordDocker
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+    ports: 
+      - "5432:5432" 
+    #volumes:
+    #  - ./PostgreSQL/pgdata:/var/lib/postgresql/data 
+
+  php:
+    build: 
+      context: .
+      dockerfile: php.Dockerfile  
+    container_name: php_helloWordDocker
+    restart: always 
+    extra_hosts:
+      - "host.docker.internal:host-gateway" 
+    volumes:
+      - ./PHP:/var/www/
+    links:
+      - postgres
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx_helloWordDocker
+    restart: always
+    ports:
+      - "80:80"
+    volumes:
+      - ./PHP:/var/www/
+      - ./nginx:/etc/nginx/conf.d
